@@ -1,12 +1,11 @@
 import json
 
-# === Load chart and metadata ===
+# Put your cool stuff here
 with open("put-song-name-here-chart.json", "r") as f:
     chart_data = json.load(f)
 with open("put-song-name-here-metadata.json", "r") as f:
     meta_data = json.load(f)
 
-# === Prepare base Psych Engine JSON ===
 psych_chart = {
     "song": {
         "song": meta_data["songName"],
@@ -23,12 +22,10 @@ psych_chart = {
     }
 }
 
-# === Sort and prepare time changes ===
 time_changes = sorted(meta_data.get("timeChanges", []), key=lambda x: x["time"])
 if not time_changes:
     time_changes = [{"time": 0, "bpm": meta_data.get("bpm", 120)}]
-
-# === Function to find BPM at given note time ===
+    
 def get_bpm_for_time(ms):
     current_bpm = time_changes[0]["bpm"]
     for change in time_changes:
@@ -38,7 +35,6 @@ def get_bpm_for_time(ms):
             break
     return current_bpm
 
-# === Build chart sections ===
 last_bpm = time_changes[0]["bpm"]
 bpm_change_index = 1 if len(time_changes) > 1 else None
 next_bpm_time = time_changes[bpm_change_index]["time"] if bpm_change_index else None
@@ -51,7 +47,6 @@ for section in chart_data["notes"]:
         "altAnim": False
     }
 
-    # Add notes
     for note in section["notes"]:
         new_note = [
             note["time"],
@@ -61,22 +56,18 @@ for section in chart_data["notes"]:
         ]
         new_section["sectionNotes"].append(new_note)
 
-    # Determine section start time (first note or estimate)
     section_start_time = None
     if section["notes"]:
         section_start_time = min(n["time"] for n in section["notes"])
     else:
-        # Estimate based on previous notes or index (fallback)
         idx = len(psych_chart["song"]["notes"])
-        section_start_time = idx * 4000  # rough guess, fine for empty ones
+        section_start_time = idx * 4000
 
-    # Check if BPM change happens before or inside this section
     if next_bpm_time and section_start_time >= next_bpm_time:
         last_bpm = time_changes[bpm_change_index]["bpm"]
         new_section["bpm"] = last_bpm
         new_section["changeBPM"] = True
 
-        # Move to next BPM if there’s another one
         bpm_change_index += 1
         next_bpm_time = (
             time_changes[bpm_change_index]["time"]
@@ -89,9 +80,8 @@ for section in chart_data["notes"]:
 
     psych_chart["song"]["notes"].append(new_section)
 
-# === Write to output ===
 with open("put-song-name-here.json", "w") as f:
     json.dump(psych_chart, f, indent=4)
 
-print("✅ Converted successfully with BPM change flags added!")
+print("Successfully converted " + psych_chart["song"]["song"] + " to Psych Engine Format!")
 input("Press Enter to exit...")
