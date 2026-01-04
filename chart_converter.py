@@ -1,9 +1,9 @@
 import json
 
 # === Load chart and metadata ===
-with open("bot-trot-chart.json", "r") as f:
+with open("put-song-name-here-chart.json", "r") as f:
     chart_data = json.load(f)
-with open("bot-trot-metadata.json", "r") as f:
+with open("put-song-name-here-metadata.json", "r") as f:
     meta_data = json.load(f)
 
 # === Prepare base Psych Engine JSON ===
@@ -90,7 +90,7 @@ for section in chart_data["notes"]:
     psych_chart["song"]["notes"].append(new_section)
 
 # === Write to output ===
-with open("bot-trot.json", "w") as f:
+with open("put-song-name-here.json", "w") as f:
     json.dump(psych_chart, f, indent=4)
 
 print("✅ Converted successfully with BPM change flags added!")
