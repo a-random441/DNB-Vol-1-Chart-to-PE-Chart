@@ -1,6 +1,6 @@
 import json
 
-# Put your cool stuff here
+# Rename put-song-name-here to the song from the json file!
 with open("put-song-name-here-chart.json", "r") as f:
     chart_data = json.load(f)
 with open("put-song-name-here-metadata.json", "r") as f:
@@ -80,6 +80,7 @@ for section in chart_data["notes"]:
 
     psych_chart["song"]["notes"].append(new_section)
 
+# Rename put-song-name-here to the song from the json file!
 with open("put-song-name-here.json", "w") as f:
     json.dump(psych_chart, f, indent=4)
 
