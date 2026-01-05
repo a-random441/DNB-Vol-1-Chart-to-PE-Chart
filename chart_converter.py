@@ -1,9 +1,10 @@
 import json
 
-# Rename put-song-name-here to the song from the json file!
-with open("put-song-name-here-chart.json", "r") as f:
+songNameLol = input('Enter song name: ')
+
+with open(f"{songNameLol}-chart.json", "r") as f:
     chart_data = json.load(f)
-with open("put-song-name-here-metadata.json", "r") as f:
+with open(f"{songNameLol}-metadata.json", "r") as f:
     meta_data = json.load(f)
 
 psych_chart = {
