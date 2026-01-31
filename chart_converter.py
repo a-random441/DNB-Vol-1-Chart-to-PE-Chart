@@ -31,7 +31,6 @@ psych_chart = {
         "gfVersion": meta_data["gf"],
         "stage": meta_data["stage"],
         "speed": chart_data.get("speed", 1),
-        "sections": len(chart_data["notes"]),
         "validScore": True
     }
 }
@@ -49,9 +48,10 @@ def get_bpm_for_time(ms):
             break
     return current_bpm
 
+def ms_per_section(bpm):
+    return (60000 / bpm) * 4
+
 last_bpm = time_changes[0]["bpm"]
-bpm_change_index = 1 if len(time_changes) > 1 else None
-next_bpm_time = time_changes[bpm_change_index]["time"] if bpm_change_index else None
 
 for section in chart_data["notes"]:
     new_section = {
@@ -70,29 +70,23 @@ for section in chart_data["notes"]:
         ]
         new_section["sectionNotes"].append(new_note)
 
-    section_start_time = None
+    section_start_time = idx * ms_per_section(last_bpm)
     if section["notes"]:
         section_start_time = min(n["time"] for n in section["notes"])
     else:
         idx = len(psych_chart["song"]["notes"])
-        section_start_time = idx * 4000
+        section_start_time = idx * ms_per_section(last_bpm)
 
-    if next_bpm_time and section_start_time >= next_bpm_time:
-        last_bpm = time_changes[bpm_change_index]["bpm"]
-        new_section["bpm"] = last_bpm
-        new_section["changeBPM"] = True
+    section_bpm = get_bpm_for_time(section_start_time)
 
-        bpm_change_index += 1
-        next_bpm_time = (
-            time_changes[bpm_change_index]["time"]
-            if bpm_change_index < len(time_changes)
-            else None
-        )
-    else:
-        new_section["bpm"] = last_bpm
-        new_section["changeBPM"] = False
+    new_section["bpm"] = section_bpm
+    new_section["changeBPM"] = section_bpm != last_bpm
+
+    last_bpm = section_bpm
 
     psych_chart["song"]["notes"].append(new_section)
+
+psych_chart["song"]["sections"] = len(psych_chart["song"]["notes"])
 
 with open(f"{songNameLol}.json", "w") as f:
     json.dump(psych_chart, f, indent=4)
