@@ -70,7 +70,6 @@ for section in chart_data["notes"]:
         ]
         new_section["sectionNotes"].append(new_note)
 
-    section_start_time = idx * ms_per_section(last_bpm)
     if section["notes"]:
         section_start_time = min(n["time"] for n in section["notes"])
     else:
